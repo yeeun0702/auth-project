@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import org.springframework.http.ResponseEntity;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -41,6 +42,17 @@ public record ApiResponseDto<T>(
             .timestamp(LocalDateTime.now())
             .statusCode(code.getHttpStatus().value())
             .error(new ErrorDetail(code.name(), code.getMessage()))
+            .build();
+    }
+
+    /**
+     * 실패 응답 생성 (ErrorCode + 커스텀 메시지)
+     */
+    public static <T> ApiResponseDto<T> fail(ErrorCode code, String customMessage) {
+        return ApiResponseDto.<T>builder()
+            .timestamp(LocalDateTime.now())
+            .statusCode(code.getHttpStatus().value())
+            .error(new ErrorDetail(code.name(), customMessage))
             .build();
     }
 

@@ -27,6 +27,9 @@ public enum ErrorCode {
     // 405 - 지원하지 않는 메서드
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 메소드입니다."),
 
+    // 409 - 중복
+    USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입된 사용자입니다."),
+
     // 500 - 서버 내부 오류
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류입니다."),
     TEST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "테스트 에러입니다.");
