@@ -3,7 +3,9 @@ package com.example.authproject.service;
 import com.example.authproject.common.exception.base.BadRequestException;
 import com.example.authproject.config.PasswordEncoder;
 import com.example.authproject.domain.User;
+import com.example.authproject.dto.request.LoginRequest;
 import com.example.authproject.dto.request.SignupRequest;
+import com.example.authproject.dto.response.LoginResponse;
 import com.example.authproject.dto.response.SignupResponse;
 import com.example.authproject.dto.response.SignupResponse.RoleResponse;
 import com.example.authproject.repository.UserRepository;
@@ -20,24 +22,23 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final com.example.authproject.jwt.JwtProvider jwtProvider;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
-        // 이메일 중복 체크
-        if (userRepository.findByEmail(request.email()).isPresent()) {
+        // 유저 이름 중복 체크
+        if (userRepository.findByUsername(request.username()).isPresent()) {
             throw new BadRequestException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.password());
 
-
         // User 엔티티 생성
         User user = new User(
             request.username(),
             request.nickname(),
-            request.email(),
+            request.email(), // email은 여전히 저장용으로는 유지
             encodedPassword
         );
 
@@ -49,4 +50,21 @@ public class AuthService {
             List.of(new RoleResponse("USER"))
         );
     }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        // 유저 이름으로 조회
+        User user = userRepository.findByUsername(request.username())
+            .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BadRequestException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        List<String> roles = List.of("USER");
+        String token = jwtProvider.generateToken(user.getUsername(), roles);
+
+        return new LoginResponse(token);
+    }
+
 }
