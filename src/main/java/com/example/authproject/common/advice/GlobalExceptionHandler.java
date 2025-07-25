@@ -27,11 +27,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponseDto<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         log.error("Validation failed: {}", e.getMessage());
+
+        // 첫 번째 필드 에러 메시지를 추출
         String message = e.getBindingResult().getFieldErrors().stream()
             .findFirst()
             .map(fieldError -> fieldError.getDefaultMessage())
             .orElse("잘못된 요청입니다.");
-        return ResponseEntity.badRequest().body(ApiResponseDto.fail(ErrorCode.INVALID_PARAMETER));
+
+        return ResponseEntity
+            .status(ErrorCode.INVALID_PARAMETER.getHttpStatus())
+            .body(ApiResponseDto.fail(ErrorCode.INVALID_PARAMETER, message));
+
     }
 
     // @RequestParam 등의 타입 불일치 (예: Long 자리에 문자열)
