@@ -2,6 +2,7 @@ package com.example.authproject.config;
 
 import com.example.authproject.security.handler.CustomAccessDeniedHandler;
 import com.example.authproject.security.jwt.JwtAuthenticationFilter;
+import com.example.authproject.security.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService userDetailsService;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -29,12 +31,13 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/signup", "/api/login", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority("Admin")
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception
                 .accessDeniedHandler(customAccessDeniedHandler)
                 .authenticationEntryPoint(customAuthenticationEntryPoint) // ← 이거 추가 필요
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
             )
 
             // 커스텀 JWT 인증 필터 등록 (기존 UsernamePasswordAuthenticationFilter 앞에 위치)
