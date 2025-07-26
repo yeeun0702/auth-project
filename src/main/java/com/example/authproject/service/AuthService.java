@@ -1,6 +1,7 @@
 package com.example.authproject.service;
 
 import com.example.authproject.common.exception.base.BadRequestException;
+import com.example.authproject.common.exception.base.NotFoundException;
 import com.example.authproject.config.PasswordEncoder;
 import com.example.authproject.domain.User;
 import com.example.authproject.dto.request.LoginRequest;
@@ -27,7 +28,7 @@ public class AuthService {
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
-        // 유저 이름 중복 체크
+        // 유저 가입 여부 체크
         if (userRepository.findByUsername(request.username()).isPresent()) {
             throw new BadRequestException(ErrorCode.USER_ALREADY_EXISTS);
         }
@@ -56,7 +57,7 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         // 유저 이름으로 조회
         User user = userRepository.findByUsername(request.username())
-            .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_CREDENTIALS));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BadRequestException(ErrorCode.INVALID_CREDENTIALS);
