@@ -1,8 +1,11 @@
 package com.example.authproject.common.advice;
 
 import com.example.authproject.common.exception.base.CustomException;
+import com.example.authproject.common.exception.base.InvalidTokenException;
+import com.example.authproject.common.exception.base.AccessDeniedException;
 import com.example.authproject.common.exception.code.ErrorCode;
 import com.example.authproject.common.response.ApiResponseDto;;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -99,8 +102,36 @@ public class GlobalExceptionHandler {
 
     // 위에서 처리되지 않은 모든 예외 처리 (예: NullPointerException 등)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponseDto<?>> handleException(Exception e) {
+    public ResponseEntity<ApiResponseDto<?>> handleException(HttpServletRequest request, Exception e) {
+        String uri = request.getRequestURI();
+
+        // Swagger 요청은 바디 없이 500 응답만 반환 (예외 재던지지 않음)
+        if (uri.contains("/v3/api-docs") || uri.contains("/swagger-ui")) {
+            log.warn("Swagger 요청 중 예외 발생: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 바디 없이 응답
+        }
+
         log.error("Unhandled exception: {} - {}", e.getClass(), e.getMessage());
-        return ResponseEntity.internalServerError().body(ApiResponseDto.fail(ErrorCode.INTERNAL_SERVER_ERROR));
+        return ResponseEntity.internalServerError()
+            .body(ApiResponseDto.fail(ErrorCode.INTERNAL_SERVER_ERROR));
     }
+
+    // 인증 토큰이 유효하지 않음
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleInvalidToken(InvalidTokenException e) {
+        log.warn("Invalid token: {}", e.getMessage());
+        return ResponseEntity
+            .status(e.getHttpStatus())
+            .body(ApiResponseDto.fail(e.getErrorCode()));
+    }
+
+    // 접근 권한 없음
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponseDto<?>> handleAccessDenied(AccessDeniedException e) {
+        log.warn("Access denied: {}", e.getMessage());
+        return ResponseEntity
+            .status(e.getHttpStatus())
+            .body(ApiResponseDto.fail(e.getErrorCode()));
+    }
+
 }
