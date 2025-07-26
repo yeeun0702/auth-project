@@ -15,7 +15,14 @@ import java.util.Set;
 
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(title = "Auth API", version = "v1")
+    info = @Info(
+        title = "Auth Project API 문서",
+        version = "v1",
+        description = """
+            Spring Boot 기반 인증 API 문서입니다.
+
+            """
+    )
 )
 @SecurityScheme(
     name = "BearerAuth",
