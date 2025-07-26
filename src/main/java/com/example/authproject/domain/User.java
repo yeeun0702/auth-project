@@ -4,11 +4,17 @@ import static com.example.authproject.domain.UserTableConstants.*;
 
 import com.example.authproject.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +47,16 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+    }
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
+
+
+    public void promoteToAdmin() {
+        this.roles.clear();
+        this.roles.add(Role.ADMIN);
     }
 
 }
