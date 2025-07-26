@@ -10,6 +10,7 @@ import com.example.authproject.dto.response.SignupResponse;
 import com.example.authproject.dto.response.SignupResponse.RoleResponse;
 import com.example.authproject.repository.UserRepository;
 import com.example.authproject.common.exception.code.ErrorCode;
+import com.example.authproject.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final com.example.authproject.jwt.JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {

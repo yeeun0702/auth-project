@@ -33,17 +33,25 @@ public class ResponseWrappingAdvice implements ResponseBodyAdvice<Object> {
         @NonNull ServerHttpRequest request,
         @NonNull ServerHttpResponse response
     ) {
+        String path = request.getURI().getPath();
+
+        // Swagger 관련 요청은 감싸지 않고 그대로 반환
+        if (path.startsWith("/v3/api-docs") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/swagger-resources")) {
+            return body;
+        }
+
         if (body instanceof ResponseEntity || body instanceof ApiResponseDto) {
-            // ApiResponseDto라면 statusCode를 설정해줌
             if (body instanceof ApiResponseDto<?> dto) {
                 response.setStatusCode(org.springframework.http.HttpStatus.valueOf(dto.statusCode()));
             }
             return body;
         }
 
-        // 성공 응답 포맷으로 감싸고, HTTP 상태코드도 설정
         ApiResponseDto<?> wrapped = ApiResponseDto.success(SuccessCode.OK, body);
         response.setStatusCode(org.springframework.http.HttpStatus.valueOf(wrapped.statusCode()));
         return wrapped;
     }
+
 }

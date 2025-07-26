@@ -20,7 +20,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
 
     // 403 - 권한 없음
-    NO_PERMISSION(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 404
     NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없습니다."),
