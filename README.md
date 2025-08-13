@@ -1,4 +1,4 @@
-# 🛡️ Auth Project – 바로인턴 15기 과제
+# 🛡️ Auth Project
 
 > **Spring Boot 기반 JWT 인증/인가 및 AWS 배포**
 
